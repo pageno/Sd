@@ -1,30 +1,314 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mensings - 실시간 특가</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Sourcing Pro</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+:root {
+  --primary:#4f46e5; --bg:#f8fafc; --card:#fff;
+  --text:#1e293b; --sub:#64748b; --danger:#ef4444;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--text);}
+
+/* ===== 최상단 헤더 ===== */
+.top-header{
+  position:sticky;top:0;height:56px;background:rgba(255,255,255,0.95);
+  backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;border-bottom:1px solid #e2e8f0;z-index:200;
+}
+.top-header .title{font-weight:800;font-size:17px;}
+.icon-btn{
+  width:36px;height:36px;border-radius:10px;border:1px solid #e2e8f0;
+  background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+
+/* ===== 햄버거 메뉴 ===== */
+.menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);display:none;z-index:300;}
+.menu{
+  position:fixed;top:0;right:-260px;width:260px;height:100%;background:#fff;padding:20px;
+  box-shadow:-6px 0 20px rgba(0,0,0,0.15);transition:.25s;z-index:400;
+}
+.menu.open{right:0;} .menu-overlay.show{display:block;}
+.menu h3{margin:0 0 16px;font-size:16px;font-weight:800;}
+.menu button{
+  width:100%;padding:12px;margin-bottom:10px;border:none;border-radius:12px;
+  background:#f1f5f9;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;
+}
+
+/* ===== 메인 ===== */
+.main{padding:16px;max-width:500px;margin:0 auto;padding-bottom:110px;}
+.card{background:var(--card);border-radius:20px;padding:20px;box-shadow:0 4px 8px rgba(0,0,0,0.05);margin-bottom:20px;}
+label{font-size:13px;font-weight:700;color:var(--sub);}
+input,textarea{
+  width:100%;padding:12px;margin:8px 0 14px;border-radius:12px;
+  border:1.5px solid #e2e8f0;font-size:15px;
+}
+button.primary{
+  width:100%;padding:14px;border:none;border-radius:14px;background:var(--primary);
+  color:#fff;font-weight:800;font-size:16px;cursor:pointer;
+}
+
+/* ===== 필터 ===== */
+.filter-tabs{display:flex;background:#e2e8f0;padding:4px;border-radius:12px;margin-bottom:16px;}
+.filter-tabs button{
+  flex:1;padding:8px;border:none;border-radius:8px;background:transparent;
+  font-size:14px;font-weight:700;color:var(--sub);cursor:pointer;
+}
+.filter-tabs button.active{background:#fff;color:var(--primary);box-shadow:0 2px 4px rgba(0,0,0,0.05);}
+
+/* ===== 아이템 ===== */
+.item-card{
+  background:#fff;border-radius:16px;margin-bottom:12px;border:1px solid #f1f5f9;overflow:hidden;
+}
+.item-card.done{opacity:.6;filter:grayscale(0.5);}
+.item-body{padding:16px;}
+.item-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.item-title{font-size:16px;font-weight:900;line-height:1.3;}
+.item-actions-mini{display:flex;gap:6px;}
+.icon-mini{
+  width:32px;height:32px;border-radius:10px;border:1px solid #e2e8f0;
+  background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.item-price{color:var(--primary);font-weight:900;font-size:17px;margin-top:6px;}
+.item-link{font-size:13px;color:var(--sub);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-top:10px;}
+.item-footer{display:flex;border-top:1px solid #f1f5f9;background:#fafafa;}
+.item-footer button{
+  flex:1;padding:12px;border:none;background:transparent;font-size:13px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;
+}
+.item-footer button:not(:last-child){border-right:1px solid #f1f5f9;}
+
+/* ===== 키워드 ===== */
+.keyword-controls{display:flex;gap:8px;margin-bottom:10px;}
+.keyword-controls button{
+  flex:1;padding:10px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;
+  font-weight:900;font-size:13px;cursor:pointer;
+}
+.keyword-controls .danger{border-color:#ffd1d1;background:#fff5f5;color:#b91c1c;}
+.kw-card{
+  background:#fff;border-radius:16px;padding:12px;border:1px solid #f1f5f9;
+  display:flex;align-items:center;gap:10px;margin-bottom:10px;
+}
+.kw-card input{width:20px;height:20px;margin:0;}
+.kw-text{flex:1;font-weight:900;cursor:pointer;}
+.kw-copy{
+  border:none;background:#eef2ff;color:var(--primary);padding:6px 10px;
+  border-radius:10px;font-weight:900;font-size:12px;cursor:pointer;
+}
+
+/* ===== 하단 네비 ===== */
+.nav{
+  position:fixed;bottom:0;left:0;width:100%;height:70px;background:#fff;
+  border-top:1px solid #e2e8f0;display:flex;z-index:120;
+}
+.nav button{flex:1;border:none;background:none;font-size:12px;font-weight:800;color:var(--sub);}
+.nav button.active{color:var(--primary);}
+.hidden{display:none;}
+</style>
 </head>
+
 <body>
-  <header>
-    <h1>Mensings</h1>
-    <p class="subtitle">쿠팡 실시간 특가 모음</p>
-    <input type="text" placeholder="지금 특가 상품 검색하기" onclick="goSearch()" />
-  </header>
-  <main>
-    <div class="banner">🎯 오늘만 특가! 타임딜 확인하세요</div>
-    <div class="banner highlight">🔥 오늘의 베스트 할인 상품</div>
-    <div class="item">샤오미 무선청소기 - <span class="discount">50%</span> 할인</div>
-    <div class="item">삼성 갤럭시버즈 - <span class="discount">30%</span> 할인</div>
-    <div class="item">나이키 샌들 - <span class="discount">20%</span> 할인</div>
-  </main>
-  <footer>
-    <button>홈</button>
-    <button onclick="goSearch()">검색</button>
-    <button>마이</button>
-  </footer>
-  <script src="script.js"></script>
+
+<!-- ===== 헤더 ===== -->
+<div class="top-header">
+  <button class="icon-btn" onclick="openCalculator()"><i data-lucide="calculator"></i></button>
+  <div class="title" id="headerTitle">Sourcing Pro</div>
+  <button class="icon-btn" onclick="toggleMenu()"><i data-lucide="menu"></i></button>
+</div>
+
+<!-- ===== 햄버거 메뉴 ===== -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="menu" id="menu">
+  <h3>바로가기</h3>
+  <button onclick="openLink('https://search.naver.com')"><i data-lucide="search"></i> 네이버</button>
+  <button onclick="openLink('https://smartstore.naver.com')"><i data-lucide="store"></i> 스마트스토어</button>
+  <button onclick="openLink('https://mobile.domeggook.com')"><i data-lucide="package"></i> 도매꾹</button>
+  <button onclick="openLink('https://shopping.naver.com/ns/home')"><i data-lucide="shopping-bag"></i> 스퍼</button>
+</div>
+
+<!-- ===== 메인 콘텐츠 ===== -->
+<div class="main">
+
+  <!-- 상품 입력 -->
+  <div id="pageAdd">
+    <div class="card">
+      <label>상품명</label>
+      <input id="title" placeholder="상품 이름을 입력하세요" />
+      <label>판매가 (원)</label>
+      <input id="price" type="number" placeholder="0" />
+      <label>링크</label>
+      <input id="link" placeholder="https://" />
+      <button class="primary" onclick="addOrUpdateItem()">상품 저장</button>
+    </div>
+  </div>
+
+  <!-- 키워드 -->
+  <div id="pageKeyword" class="hidden">
+    <div class="card">
+      <label>키워드 입력</label>
+      <textarea id="keywordInput" rows="4" placeholder="줄바꿈으로 구분"></textarea>
+      <button class="primary" onclick="makeKeywords()">추가</button>
+      <div class="keyword-controls" style="margin-top:10px;">
+        <button onclick="selectAllKeywords()">전체 선택</button>
+        <button onclick="unselectAllKeywords()">전체 해제</button>
+        <button class="danger" onclick="deleteCheckedKeywords()">선택 삭제</button>
+      </div>
+    </div>
+    <div id="keywordList"></div>
+  </div>
+
+  <!-- 정리 -->
+  <div id="pageList" class="hidden">
+    <div class="filter-tabs">
+      <button id="fLow" class="active" onclick="setFilter('low')">저가형 (~2만)</button>
+      <button id="fHigh" onclick="setFilter('high')">고가형 (2만~)</button>
+    </div>
+    <div id="listContainer"></div>
+  </div>
+
+</div>
+
+<!-- ===== 하단 네비 ===== -->
+<div class="nav">
+  <button class="active" id="nAdd" onclick="switchPage('add')">추가</button>
+  <button id="nKeyword" onclick="switchPage('keyword')">키워드</button>
+  <button id="nList" onclick="switchPage('list')">정리</button>
+</div>
+
+<script>
+lucide.createIcons();
+
+/* ===== 메뉴 & 외부 링크 ===== */
+function openCalculator(){window.open("https://pageno.github.io/Sdb/","_blank");}
+function openLink(url){window.open(url,"_blank");}
+function toggleMenu(){
+  document.getElementById("menu").classList.toggle("open");
+  document.getElementById("menuOverlay").classList.toggle("show");
+}
+
+/* ===== 데이터 저장 ===== */
+let items=JSON.parse(localStorage.getItem("items")||"[]");
+let keywords=JSON.parse(localStorage.getItem("keywords")||"[]");
+let currentFilter="low";let editingId=null;
+function saveData(){
+  localStorage.setItem("items",JSON.stringify(items));
+  localStorage.setItem("keywords",JSON.stringify(keywords));
+}
+
+/* ===== 페이지 전환 ===== */
+function switchPage(page){
+  ["pageAdd","pageKeyword","pageList"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  ["nAdd","nKeyword","nList"].forEach(id=>document.getElementById(id).classList.remove("active"));
+  document.getElementById("page"+page.charAt(0).toUpperCase()+page.slice(1)).classList.remove("hidden");
+  document.getElementById("n"+page.charAt(0).toUpperCase()+page.slice(1)).classList.add("active");
+  document.getElementById("headerTitle").innerText=
+    page==="add"?"상품 추가":page==="keyword"?"키워드 관리":"소싱 리스트";
+  if(page==="list")renderList();
+  if(page==="keyword")renderKeywords();
+  lucide.createIcons();
+}
+
+/* ===== 상품 ===== */
+function addOrUpdateItem(){
+  const title=document.getElementById("title").value.trim();
+  const price=Number(document.getElementById("price").value.trim());
+  const link=document.getElementById("link").value.trim();
+  if(!title||!price)return alert("상품명과 판매가를 입력하세요");
+  if(editingId){
+    items=items.map(it=>it.id===editingId?{...it,title,price,link}:it);
+    editingId=null;alert("수정되었습니다");
+  }else{
+    items.unshift({id:Date.now(),title,price,link,done:false});
+    alert("저장되었습니다");
+  }
+  saveData();
+  ["title","price","link"].forEach(id=>document.getElementById(id).value="");
+}
+function renderList(){
+  const list=document.getElementById("listContainer");list.innerHTML="";
+  const filtered=items.filter(it=>currentFilter==="low"?it.price<20000:it.price>=20000);
+  filtered.forEach(it=>{
+    const div=document.createElement("div");
+    div.className="item-card "+(it.done?"done":"");
+    div.innerHTML=`
+      <div class="item-body">
+        <div class="item-title-row">
+          <div class="item-title">${it.title}</div>
+          <div class="item-actions-mini">
+            <button class="icon-mini" onclick="copyText('${it.title}')"><i data-lucide='copy'></i></button>
+            <button class="icon-mini" onclick="copyText('${it.price}')"><i data-lucide='badge-dollar-sign'></i></button>
+          </div>
+        </div>
+        <div class="item-price">${it.price.toLocaleString()}원</div>
+        ${it.link?`<a href='${it.link}' target='_blank' class='item-link'><i data-lucide='external-link'></i>원본 링크</a>`:""}
+      </div>
+      <div class="item-footer">
+        <button onclick="toggleItem(${it.id})"><i data-lucide='${it.done?'rotate-ccw':'check'}'></i>${it.done?'취소':'완료'}</button>
+        <button onclick="editItem(${it.id})"><i data-lucide='pencil'></i>수정</button>
+        <button onclick="deleteItem(${it.id})" style="color:var(--danger)"><i data-lucide='trash-2'></i>삭제</button>
+      </div>`;
+    list.appendChild(div);
+  });
+  lucide.createIcons();
+}
+function toggleItem(id){items=items.map(it=>it.id===id?{...it,done:!it.done}:it);saveData();renderList();}
+function editItem(id){
+  const it=items.find(x=>x.id===id);if(!it)return;
+  document.getElementById("title").value=it.title;
+  document.getElementById("price").value=it.price;
+  document.getElementById("link").value=it.link;
+  editingId=id;switchPage("add");
+}
+function deleteItem(id){
+  if(!confirm("삭제하시겠습니까?"))return;
+  items=items.filter(it=>it.id!==id);saveData();renderList();
+}
+function setFilter(f){
+  currentFilter=f;
+  document.getElementById("fLow").classList.toggle("active",f==="low");
+  document.getElementById("fHigh").classList.toggle("active",f==="high");
+  renderList();
+}
+
+/* ===== 키워드 ===== */
+function makeKeywords(){
+  const raw=document.getElementById("keywordInput").value.trim();
+  if(!raw)return;
+  const arr=raw.split("\n").map(v=>v.trim()).filter(v=>v);
+  arr.forEach(t=>{if(!keywords.some(k=>k.text===t))keywords.push({text:t,checked:false});});
+  document.getElementById("keywordInput").value="";saveData();renderKeywords();
+}
+function renderKeywords(){
+  const wrap=document.getElementById("keywordList");wrap.innerHTML="";
+  keywords.forEach((k,i)=>{
+    const div=document.createElement("div");
+    div.className="kw-card";
+    div.innerHTML=`
+      <input type='checkbox' ${k.checked?'checked':''} onchange='toggleKeyword(${i})'>
+      <div class='kw-text' onclick='searchKeyword("${k.text}")'>${k.text}</div>
+      <button class='kw-copy' onclick='copyText("${k.text}")'>복사</button>`;
+    wrap.appendChild(div);
+  });
+}
+function toggleKeyword(i){keywords[i].checked=!keywords[i].checked;saveData();}
+function selectAllKeywords(){keywords.forEach(k=>k.checked=true);saveData();renderKeywords();}
+function unselectAllKeywords(){keywords.forEach(k=>k.checked=false);saveData();renderKeywords();}
+function deleteCheckedKeywords(){
+  if(!keywords.some(k=>k.checked))return alert("선택된 키워드가 없습니다");
+  if(!confirm("삭제할까요?"))return;
+  keywords=keywords.filter(k=>!k.checked);saveData();renderKeywords();
+}
+function searchKeyword(t){
+  const url="https://shopping.naver.com/search/all?query="+encodeURIComponent(t);
+  window.open(url,"_blank");
+}
+
+/* ===== 유틸 ===== */
+function copyText(t){navigator.clipboard.writeText(t).then(()=>alert("복사되었습니다!"));}
+</script>
 </body>
 </html>
